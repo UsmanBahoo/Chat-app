@@ -34,9 +34,9 @@ function ChatScreen() {
         console.log('Fetched users:', data);
         const filtered = data.filter(u => u.name !== user?.name);
         setUsers(filtered);
-        if (!selectedUser && filtered.length > 0) setSelectedUser(filtered[0]);
+        // No auto-selection here!
       });
-  }, [user, selectedUser]);
+  }, [user]);
 
   // Fetch users on mount and when user changes
   useEffect(() => {
@@ -93,7 +93,7 @@ function ChatScreen() {
           <div className="flex-1 overflow-y-auto">
             <UserList
               users={users}
-              selectedUserId={selectedUser?.name}
+              selectedUserId={selectedUser?._id}
               onUserClick={userObj => setSelectedUser(userObj)}
             />
           </div>

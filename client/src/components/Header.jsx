@@ -3,8 +3,6 @@ import useAuth from '../contexts/authProvider';
 
 function Header() {
   const { user, logout } = useAuth();
-
-  console.log('Header user:', user);
   return (
     <header className="flex items-center justify-between px-6 py-3 bg-white/90 border-b border-gray-200 shadow-sm">
       {/* App Logo/Name */}
