@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
       .post('http://localhost:5000/api/login', { email, password })
       .then((response) => {
         setUser(response.data.user);
+        console.log('Login successful:', response.data.user);
         localStorage.setItem('CAPP-USER', JSON.stringify(response.data.user));
         setIsLoggedIn(true);
         window.location.href = '/';
