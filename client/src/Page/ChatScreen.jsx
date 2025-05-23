@@ -26,6 +26,9 @@ function ChatScreen() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  console.log('ChatScreen user:', user.name);
+  console.log('ChatScreen selectedUser:', selectedUser?.username);
+
   // Define fetchUsers as a function so it can be reused
   const fetchUsers = useCallback(() => {
     fetch('http://localhost:5000/api/users')
@@ -105,12 +108,12 @@ function ChatScreen() {
               <div className="flex flex-col h-full">
                 <div className="flex items-center gap-4 mb-4 border-b border-gray-200 pb-4">
                   <img
-                    src={selectedUser.avatar}
-                    alt={selectedUser.name}
+                    src={selectedUser.avatar ? selectedUser.avatar : 'https://api.dicebear.com/7.x/initials/svg?seed=' + selectedUser.username}
+                    alt={selectedUser.username}
                     className="w-10 h-10 rounded-full border-2 border-blue-300"
                   />
                   <div>
-                    <div className="text-lg font-semibold text-blue-700">{selectedUser.name}</div>
+                    <div className="text-lg font-semibold text-blue-700">{selectedUser.username}</div>
                     <div className="text-xs text-green-500">Online</div>
                   </div>
                 </div>

@@ -82,6 +82,23 @@ const UserController = {
         } catch (error) {
             res.status(500).json({ message: 'Error logging in', error });
         }
+    },
+
+    async updateOnlineStatus(req, res) {
+        try {
+            const { userId, isOnline } = req.body;
+            const updatedUser = await User.findByIdAndUpdate(
+                userId,
+                { isOnline },
+                { new: true }
+            );
+            if (!updatedUser) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.status(200).json(updatedUser);
+        } catch (error) {
+            res.status(500).json({ message: 'Error updating online status', error });
+        }
     }
 }
 

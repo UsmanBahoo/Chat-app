@@ -17,11 +17,11 @@ function Header() {
         {user && (
           <>
             <img
-              src={user.avatar ? user.avatar : 'https://api.dicebear.com/7.x/initials/svg?seed=' + user.username}
+              src={user.avatar ? user.avatar : 'https://api.dicebear.com/7.x/initials/svg?seed=' + user.name}
               alt={user.username}
               className="w-9 h-9 rounded-full border-2 border-blue-300 object-cover"
             />
-            <span className="font-medium text-blue-700">{user.username}</span>
+            <span className="font-medium text-blue-700">{user.name || user.username}</span>
             <button
               onClick={logout}
               className="ml-2 px-4 py-1 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
