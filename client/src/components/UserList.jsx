@@ -1,6 +1,7 @@
 import React from 'react';
 
 function UserList({ users, selectedUserId, onUserClick }) {
+  console.log('UserList rendered with users:', users);
   return (
     <div className="p-2">
       <ul className="space-y-2">
