@@ -99,10 +99,10 @@ function ChatScreen() {
           </div>
         </aside>
         {/* Chat Window */}
-        <main className="flex-1 flex flex-col p-4">
-          {selectedUser ? (
+        {selectedUser ? (
+          <main className="flex-1 flex flex-col p-4">
             <ChatWindow>
-              <>
+              <div className="flex flex-col h-full">
                 <div className="flex items-center gap-4 mb-4 border-b border-gray-200 pb-4">
                   <img
                     src={selectedUser.avatar}
@@ -127,13 +127,12 @@ function ChatScreen() {
                 <div className="mt-4">
                   <MessageInput onSend={handleSendMessage} />
                 </div>
-              </>
-          </ChatWindow>
-          ) : (
-            <NoUserSelected />
-          )}
-          
-        </main>
+              </div>
+            </ChatWindow>
+          </main>
+        ) : (
+          <NoUserSelected />
+        )}
       </div>
     </div>
   );
