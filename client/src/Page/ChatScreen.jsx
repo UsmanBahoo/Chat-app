@@ -56,8 +56,8 @@ function ChatScreen() {
   useEffect(() => {
     const handler = (msg) => {
       if (
-        (msg.sender === user.name && msg.to === selectedUser?.name) ||
-        (msg.sender === selectedUser?.name && msg.to === user.name)
+        (msg.sender === user._id && msg.to === selectedUser._id) ||
+        (msg.sender === selectedUser?._id && msg.to === user._id)
       ) {
         setMessages((prev) => [...prev, msg]);
       }
