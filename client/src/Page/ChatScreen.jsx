@@ -25,6 +25,7 @@ function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  
 
   console.log('ChatScreen user:', user.name);
   console.log('ChatScreen selectedUser:', selectedUser?.username);
@@ -73,13 +74,12 @@ function ChatScreen() {
     if (!selectedUser) return;
     const msg = {
       id: Date.now(),
-      sender: user.name,
-      to: selectedUser.name,
-      avatar: user.avatar,
+      sender: user._id,
+      to: selectedUser._id,
       content,
-      isOwn: true,
     };
     setMessages((prev) => [...prev, msg]);
+    console.log('Sending message:', msg);
     socket.emit('send-message', msg);
   };
 
@@ -97,7 +97,13 @@ function ChatScreen() {
             <UserList
               users={users}
               selectedUserId={selectedUser?._id}
-              onUserClick={userObj => setSelectedUser(userObj)}
+              onUserClick={userObj => {
+                if (selectedUser && selectedUser._id === userObj._id) {
+                  setSelectedUser(null); // Deselect if already selected
+                } else {
+                  setSelectedUser(userObj); // Select new user
+                }
+              }}
             />
           </div>
         </aside>
@@ -121,9 +127,9 @@ function ChatScreen() {
                   <MessageList
                     messages={messages.map(msg => ({
                       ...msg,
-                      isOwn: msg.sender === user.name,
-                      sender: msg.sender,
-                      avatar: msg.avatar,
+                      isOwn: msg.sender === user._id,
+                      sender: msg._id,
+                      avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=U',
                     }))}
                   />
                 </div>

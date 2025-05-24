@@ -1,8 +1,9 @@
-
 const Message = require('../models/Message');
 
 const MessageController = {
+    // For REST API
     async createMessage(req, res) {
+        console.log('Creating message:', req.body);
         try {
             const { sender, to, content } = req.body;
             const newMessage = new Message({ sender, to, content });
@@ -12,6 +13,14 @@ const MessageController = {
             console.error('Error sending message:', error);
             res.status(500).json({ message: 'Error sending message', error });
         }
+    },
+
+    // For Socket.IO
+    async createMessageSocket(msg) {
+        // msg is a plain object: { sender, to, content, ... }
+        const newMessage = new Message(msg);
+        await newMessage.save();
+        return newMessage;
     },
 
     async getMessages(req, res) {
@@ -82,3 +91,5 @@ const MessageController = {
         }
     }
 };
+
+module.exports = MessageController;
