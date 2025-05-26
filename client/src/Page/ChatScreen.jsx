@@ -84,12 +84,11 @@ function ChatScreen() {
   // Listen for real-time messages
   useEffect(() => {
     const handler = (msg) => {
+      // Only update if this is the current chat
       if (
         selectedUser &&
-        (
-          (msg.sender === user._id && msg.to === selectedUser._id) ||
-          (msg.sender === selectedUser._id && msg.to === user._id)
-        )
+        ((msg.sender === user._id && msg.to === selectedUser._id) ||
+         (msg.sender === selectedUser._id && msg.to === user._id))
       ) {
         // Find sender info
         let senderName = "You";
@@ -103,8 +102,8 @@ function ChatScreen() {
         ]);
       }
     };
-    socket.on('receive-message', handler);
-    return () => socket.off('receive-message', handler);
+    socket.on('receive-private-message', handler);
+    return () => socket.off('receive-private-message', handler);
   }, [user, selectedUser, users]);
 
   const handleSendMessage = (content) => {
