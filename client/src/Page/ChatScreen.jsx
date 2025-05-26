@@ -91,12 +91,21 @@ function ChatScreen() {
           (msg.sender === selectedUser._id && msg.to === user._id)
         )
       ) {
-        setMessages((prev) => [...prev, msg]);
+        // Find sender info
+        let senderName = "You";
+        if (msg.sender !== user._id) {
+          const senderUser = users.find(u => u._id === msg.sender) || selectedUser;
+          senderName = senderUser?.username || senderUser?.name || "Unknown";
+        }
+        setMessages((prev) => [
+          ...prev,
+          { ...msg, senderName }
+        ]);
       }
     };
     socket.on('receive-message', handler);
     return () => socket.off('receive-message', handler);
-  }, [user, selectedUser]);
+  }, [user, selectedUser, users]);
 
   const handleSendMessage = (content) => {
     if (!selectedUser) return;
