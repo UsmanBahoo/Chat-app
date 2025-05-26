@@ -56,11 +56,30 @@ function ChatScreen() {
     if (selectedUser) {
       fetch(`http://localhost:5000/api/messages/${user._id}/${selectedUser._id}`)
         .then(res => res.json())
-        .then(data => setMessages(data));
+        .then(async (data) => {
+          // Get unique sender IDs
+          const senderIds = [...new Set(data.map(msg => msg.sender))];
+          // Fetch user details for each sender (if not already in users)
+          const userDetails = {};
+          for (const id of senderIds) {
+            let userInfo = users.find(u => u._id === id);
+            if (!userInfo) {
+              const res = await fetch(`http://localhost:5000/api/users/${id}`);
+              userInfo = await res.json();
+            }
+            userDetails[id] = userInfo;
+          }
+          // Attach sender name to each message
+          const messagesWithSender = data.map(msg => ({
+            ...msg,
+            senderName: userDetails[msg.sender]?.username || userDetails[msg.sender]?.name || 'Unknown'
+          }));
+          setMessages(messagesWithSender);
+        });
     } else {
       setMessages([]);
     }
-  }, [selectedUser, user]);
+  }, [selectedUser, user, users]);
 
   // Listen for real-time messages
   useEffect(() => {
@@ -136,6 +155,7 @@ function ChatScreen() {
                       ...msg,
                       isOwn: msg.sender === user._id,
                     }))}
+                    selectedUser={selectedUser}
                   />
                 </div>
                 <div className="mt-4">

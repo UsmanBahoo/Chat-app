@@ -101,7 +101,8 @@ const UserController = {
         } catch (error) {
             res.status(500).json({ message: 'Error updating online status', error });
         }
-    }
+    },
+
 }
 
 module.exports = UserController;
