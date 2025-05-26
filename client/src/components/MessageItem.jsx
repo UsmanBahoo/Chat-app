@@ -1,15 +1,8 @@
 import React from 'react';
 
-function MessageItem({ sender, avatar, content, isOwn }) {
+function MessageItem({ sender, content, isOwn }) {
   return (
     <div className={`flex items-end mb-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
-      {!isOwn && (
-        <img
-          src={avatar}
-          alt={sender}
-          className="w-8 h-8 rounded-full mr-2"
-        />
-      )}
       <div
         className={`px-4 py-2 rounded-2xl max-w-xs break-words shadow
           ${isOwn
@@ -22,13 +15,6 @@ function MessageItem({ sender, avatar, content, isOwn }) {
         )}
         <span className="block text-sm">{content}</span>
       </div>
-      {isOwn && (
-        <img
-          src={avatar}
-          alt={sender}
-          className="w-8 h-8 rounded-full ml-2"
-        />
-      )}
     </div>
   );
 }

@@ -10,6 +10,7 @@ const userController = require('./controllers/UserController');
 
 //routes
 const userRoutes = require('./routes/UserRoutes');
+const messageRouter = require('./routes/MessageRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -24,6 +25,7 @@ app.use(cors({ origin: '*' }));
 app.set('io', io);
 
 app.use('/api',userRoutes);
+app.use('/api/messages',messageRouter)
 
 setupSocket(io);
 

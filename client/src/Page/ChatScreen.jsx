@@ -12,34 +12,32 @@ import NoUserSelected from '../components/NoUserSelected';
 const socket = io('http://localhost:5000');
 
 function ChatScreen() {
-  const { 
-  user, isLoggedIn } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isLoggedIn || !user) {
-      navigate('/login');
-    }
-  }, [isLoggedIn, user, navigate]);
 
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  
 
-  console.log('ChatScreen user:', user.name);
-  console.log('ChatScreen selectedUser:', selectedUser?.username);
-
-  // Define fetchUsers as a function so it can be reused
+  // Fetch users
   const fetchUsers = useCallback(() => {
     fetch('http://localhost:5000/api/users')
       .then(res => res.json())
       .then(data => {
-        console.log('Fetched users:', data);
-        const filtered = data.filter(u => u.name !== user?.name);
+        const filtered = data.filter(u => u._id !== user?._id);
         setUsers(filtered);
-        // No auto-selection here!
       });
+  }, [user]);
+
+  if(!isLoggedIn || !user){
+    navigate('/login')
+  }
+
+  // Register user with socket on login
+  useEffect(() => {
+    if (user && user._id) {
+      socket.emit('register-user', user._id);
+    }
   }, [user]);
 
   // Fetch users on mount and when user changes
@@ -53,11 +51,26 @@ function ChatScreen() {
     return () => socket.off('user-list-updated', fetchUsers);
   }, [fetchUsers]);
 
+  // Fetch chat history when selectedUser changes
+  useEffect(() => {
+    if (selectedUser) {
+      fetch(`http://localhost:5000/api/messages/${user._id}/${selectedUser._id}`)
+        .then(res => res.json())
+        .then(data => setMessages(data));
+    } else {
+      setMessages([]);
+    }
+  }, [selectedUser, user]);
+
+  // Listen for real-time messages
   useEffect(() => {
     const handler = (msg) => {
       if (
-        (msg.sender === user._id && msg.to === selectedUser._id) ||
-        (msg.sender === selectedUser?._id && msg.to === user._id)
+        selectedUser &&
+        (
+          (msg.sender === user._id && msg.to === selectedUser._id) ||
+          (msg.sender === selectedUser._id && msg.to === user._id)
+        )
       ) {
         setMessages((prev) => [...prev, msg]);
       }
@@ -66,20 +79,14 @@ function ChatScreen() {
     return () => socket.off('receive-message', handler);
   }, [user, selectedUser]);
 
-  useEffect(() => {
-    setMessages([]);
-  }, [selectedUser]);
-
   const handleSendMessage = (content) => {
     if (!selectedUser) return;
     const msg = {
-      id: Date.now(),
       sender: user._id,
       to: selectedUser._id,
       content,
+      type: 'personal'
     };
-    setMessages((prev) => [...prev, msg]);
-    console.log('Sending message:', msg);
     socket.emit('send-message', msg);
   };
 
@@ -114,12 +121,12 @@ function ChatScreen() {
               <div className="flex flex-col h-full">
                 <div className="flex items-center gap-4 mb-4 border-b border-gray-200 pb-4">
                   <img
-                    src={selectedUser.avatar ? selectedUser.avatar : 'https://api.dicebear.com/7.x/initials/svg?seed=' + selectedUser.username}
-                    alt={selectedUser.username}
+                    src={selectedUser.avatar ? selectedUser.avatar : 'https://api.dicebear.com/7.x/initials/svg?seed=' + (selectedUser.username || selectedUser.name)}
+                    alt={selectedUser.username || selectedUser.name}
                     className="w-10 h-10 rounded-full border-2 border-blue-300"
                   />
                   <div>
-                    <div className="text-lg font-semibold text-blue-700">{selectedUser.username}</div>
+                    <div className="text-lg font-semibold text-blue-700">{selectedUser.username || selectedUser.name}</div>
                     <div className="text-xs text-green-500">Online</div>
                   </div>
                 </div>
@@ -128,8 +135,6 @@ function ChatScreen() {
                     messages={messages.map(msg => ({
                       ...msg,
                       isOwn: msg.sender === user._id,
-                      sender: msg._id,
-                      avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=U',
                     }))}
                   />
                 </div>

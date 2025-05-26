@@ -7,9 +7,8 @@ function MessageList({ messages }) {
       {messages && messages.length > 0 ? (
         messages.map((msg) => (
           <MessageItem
-            key={msg.id}
+            key={msg._id}
             sender={msg.sender}
-            avatar={msg.avatar}
             content={msg.content}
             isOwn={msg.isOwn}
           />
