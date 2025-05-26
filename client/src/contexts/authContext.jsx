@@ -14,9 +14,12 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(storedUser ? JSON.parse(storedUser) : null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!storedUser);
 
+  // Use VITE_SERVER_URL for Vite projects
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
   const login = (email, password) => {
     axios
-      .post('http://localhost:5000/api/login', { email, password })
+      .post(`${SERVER_URL}/api/login`, { email, password })
       .then((response) => {
         setUser(response.data.user);
         console.log('Login successful:', response.data.user);

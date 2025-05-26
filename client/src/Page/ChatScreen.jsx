@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
+import axios from 'axios';
 import Header from '../components/Header';
 import MessageList from '../components/MessageList';
 import MessageInput from '../components/MessageInput';
@@ -9,7 +10,10 @@ import useAuth from '../contexts/authProvider';
 import { useNavigate } from 'react-router-dom';
 import NoUserSelected from '../components/NoUserSelected';
 
-const socket = io('http://localhost:5000');
+// Use VITE_SERVER_URL from .env
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+console.log('SERVER_URL: ', SERVER_URL)
+const socket = io(SERVER_URL);
 
 function ChatScreen() {
   const { user, isLoggedIn } = useAuth();
@@ -21,16 +25,24 @@ function ChatScreen() {
 
   // Fetch users
   const fetchUsers = useCallback(() => {
-    fetch('http://localhost:5000/api/users')
-      .then(res => res.json())
-      .then(data => {
-        const filtered = data.filter(u => u._id !== user?._id);
+    axios.get(`https://9c57-2407-aa80-126-be75-a571-4d02-8a92-365.ngrok-free.app/api/users`, {
+      headers:{
+        'ngrok-skip-browser-warning': '69420'
+      }
+    })
+      .then(res => {
+        console.log('User Response: ', res.data);
+        const filtered = res.data.filter(u => u._id !== user?._id);
         setUsers(filtered);
+      })
+      .catch(err => {
+        console.log('User Response Error: ', err);
+        console.error('Error fetching users:', err);
       });
   }, [user]);
 
-  if(!isLoggedIn || !user){
-    navigate('/login')
+  if (!isLoggedIn || !user) {
+    navigate('/login');
   }
 
   // Register user with socket on login
@@ -54,9 +66,13 @@ function ChatScreen() {
   // Fetch chat history when selectedUser changes
   useEffect(() => {
     if (selectedUser) {
-      fetch(`http://localhost:5000/api/messages/${user._id}/${selectedUser._id}`)
-        .then(res => res.json())
-        .then(async (data) => {
+      axios.get(`${SERVER_URL}/api/messages/${user._id}/${selectedUser._id}`, {
+        headers: {
+          'ngrok-skip-browser-warning': '69420'
+        }
+      })
+        .then(async (res) => {
+          const data = res.data;
           // Get unique sender IDs
           const senderIds = [...new Set(data.map(msg => msg.sender))];
           // Fetch user details for each sender (if not already in users)
@@ -64,8 +80,8 @@ function ChatScreen() {
           for (const id of senderIds) {
             let userInfo = users.find(u => u._id === id);
             if (!userInfo) {
-              const res = await fetch(`http://localhost:5000/api/users/${id}`);
-              userInfo = await res.json();
+              const res = await axios.get(`${SERVER_URL}/api/users/${id}`);
+              userInfo = res.data;
             }
             userDetails[id] = userInfo;
           }
@@ -86,14 +102,19 @@ function ChatScreen() {
     const handler = (msg) => {
       if (
         selectedUser &&
-        ((msg.sender === user._id && msg.to === selectedUser._id) ||
-         (msg.sender === selectedUser._id && msg.to === user._id))
+        (
+          (msg.sender === user._id && msg.to === selectedUser._id) ||
+          (msg.sender === selectedUser._id && msg.to === user._id)
+        )
       ) {
-        console.log('Received message:', msg);
-        // Find sender info
-        let senderName = "You";
-        if (msg.sender !== user._id) {
-          const senderUser = users.find(u => u._id === msg.sender) || selectedUser;
+        let senderName;
+        if (msg.sender === user._id) {
+          senderName = user.username || user.name || "You";
+        } else if (msg.sender === selectedUser._id) {
+          senderName = selectedUser.username || selectedUser.name || "Unknown";
+        } else {
+          // fallback for group or unknown sender
+          const senderUser = users.find(u => u._id === msg.sender);
           senderName = senderUser?.username || senderUser?.name || "Unknown";
         }
         setMessages((prev) => [
