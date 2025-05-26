@@ -4,9 +4,11 @@ function setupSocket(io) {
   const userSocketMap = {};
 
   io.on('connection', (socket) => {
+    console.log('New socket connection:', socket.id);    
     socket.on('register-user', (userId) => {
       userSocketMap[userId] = socket.id;
       socket.join(userId);
+      console.log('User registered:', userId);
     });
 
     socket.on('join-group', (groupId) => {

@@ -13,7 +13,13 @@ import NoUserSelected from '../components/NoUserSelected';
 // Use VITE_SERVER_URL from .env
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 console.log('SERVER_URL: ', SERVER_URL)
-const socket = io(SERVER_URL);
+const socket = io(SERVER_URL, {
+  transports: ['websocket'],
+  extraHeaders: {
+    'ngrok-skip-browser-warning': '69420'
+  }
+
+});
 
 function ChatScreen() {
   const { user, isLoggedIn } = useAuth();
@@ -25,14 +31,16 @@ function ChatScreen() {
 
   // Fetch users
   const fetchUsers = useCallback(() => {
-    axios.get(`https://9c57-2407-aa80-126-be75-a571-4d02-8a92-365.ngrok-free.app/api/users`, {
-      headers:{
+    axios.get(`${SERVER_URL}/api/users`, {
+      headers: {
         'ngrok-skip-browser-warning': '69420'
       }
     })
       .then(res => {
         console.log('User Response: ', res.data);
-        const filtered = res.data.filter(u => u._id !== user?._id);
+        const filtered = user
+          ? res.data.filter(u => u._id !== user._id)
+          : res.data;
         setUsers(filtered);
       })
       .catch(err => {
@@ -80,7 +88,11 @@ function ChatScreen() {
           for (const id of senderIds) {
             let userInfo = users.find(u => u._id === id);
             if (!userInfo) {
-              const res = await axios.get(`${SERVER_URL}/api/users/${id}`);
+              const res = await axios.get(`${SERVER_URL}/api/users/${id}`, {
+                headers: {
+                  'ngrok-skip-browser-warning': '69420'
+                }
+              });
               userInfo = res.data;
             }
             userDetails[id] = userInfo;
