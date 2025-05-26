@@ -84,12 +84,12 @@ function ChatScreen() {
   // Listen for real-time messages
   useEffect(() => {
     const handler = (msg) => {
-      // Only update if this is the current chat
       if (
         selectedUser &&
         ((msg.sender === user._id && msg.to === selectedUser._id) ||
          (msg.sender === selectedUser._id && msg.to === user._id))
       ) {
+        console.log('Received message:', msg);
         // Find sender info
         let senderName = "You";
         if (msg.sender !== user._id) {

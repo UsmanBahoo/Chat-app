@@ -20,6 +20,7 @@ function setupSocket(io) {
       if (msg.type === 'group' && msg.groupId) {
         io.to(msg.groupId).emit('receive-group-message', saved);
       } else if (msg.type === 'personal' && msg.to) {
+        
         io.to(msg.to).to(msg.sender).emit('receive-private-message', saved);
       }
     });
