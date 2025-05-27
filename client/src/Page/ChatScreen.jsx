@@ -194,9 +194,10 @@ function ChatScreen() {
         </aside>
         {/* Chat Window */}
         {selectedUser ? (
-          <main className="flex-1 flex flex-col min-h-0">
+          <main className="flex-1 flex flex-col">
             <ChatWindow>
-              <div className="flex flex-col h-full min-h-0">
+              <div className="flex flex-col h-full">
+                {/* header */}
                 <div className="flex items-center gap-4 mb-4 border-b border-gray-200 pb-4 px-4 pt-4">
                   <img
                     src={selectedUser.avatar ? selectedUser.avatar : 'https://api.dicebear.com/7.x/initials/svg?seed=' + (selectedUser.username || selectedUser.name)}
@@ -208,8 +209,8 @@ function ChatScreen() {
                     <div className="text-xs text-green-500">Online</div>
                   </div>
                 </div>
-                {/* Only this div should scroll */}
-                <div className="flex-1 min-h-0 overflow-y-auto px-4">
+                {/* scrollable messages */}
+                <div className="flex-1 overflow-y-auto px-4">
                   <MessageList
                     messages={messages.map(msg => ({
                       ...msg,
@@ -218,6 +219,7 @@ function ChatScreen() {
                     selectedUser={selectedUser}
                   />
                 </div>
+                {/* input */}
                 <div className="mt-4 px-4 pb-4">
                   <MessageInput onSend={handleSendMessage} />
                 </div>

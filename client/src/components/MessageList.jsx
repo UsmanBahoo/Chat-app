@@ -3,7 +3,7 @@ import MessageItem from './MessageItem';
 
 function MessageList({ messages, selectedUser }) {
   return (
-    <div className="flex flex-col gap-2 h-full justify-end">
+    <div className="flex flex-col gap-2 justify-end">
       {messages && messages.length > 0 ? (
         messages.map((msg) => (
           <MessageItem
