@@ -109,6 +109,13 @@ function ChatScreen() {
     }
   }, [selectedUser, user, users]);
 
+  // Ask for notification permission on mount
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   // Listen for real-time messages
   useEffect(() => {
     const handler = (msg) => {
@@ -125,7 +132,6 @@ function ChatScreen() {
         } else if (msg.sender === selectedUser._id) {
           senderName = selectedUser.username || selectedUser.name || "Unknown";
         } else {
-          // fallback for group or unknown sender
           const senderUser = users.find(u => u._id === msg.sender);
           senderName = senderUser?.username || senderUser?.name || "Unknown";
         }
@@ -133,6 +139,18 @@ function ChatScreen() {
           ...prev,
           { ...msg, senderName }
         ]);
+
+        // Show browser notification if message is from someone else
+        if (
+          msg.sender !== user._id &&
+          "Notification" in window &&
+          Notification.permission === "granted"
+        ) {
+          new Notification(`New message from ${senderName}`, {
+            body: msg.content,
+          });
+          console.log('Notification should show:', msg.content);
+        }
       }
     };
     socket.on('receive-private-message', handler);
@@ -166,9 +184,9 @@ function ChatScreen() {
               selectedUserId={selectedUser?._id}
               onUserClick={userObj => {
                 if (selectedUser && selectedUser._id === userObj._id) {
-                  setSelectedUser(null); // Deselect if already selected
+                  setSelectedUser(null);
                 } else {
-                  setSelectedUser(userObj); // Select new user
+                  setSelectedUser(userObj);
                 }
               }}
             />
@@ -176,10 +194,10 @@ function ChatScreen() {
         </aside>
         {/* Chat Window */}
         {selectedUser ? (
-          <main className="flex-1 flex flex-col p-4">
+          <main className="flex-1 flex flex-col min-h-0">
             <ChatWindow>
-              <div className="flex flex-col h-full">
-                <div className="flex items-center gap-4 mb-4 border-b border-gray-200 pb-4">
+              <div className="flex flex-col h-full min-h-0">
+                <div className="flex items-center gap-4 mb-4 border-b border-gray-200 pb-4 px-4 pt-4">
                   <img
                     src={selectedUser.avatar ? selectedUser.avatar : 'https://api.dicebear.com/7.x/initials/svg?seed=' + (selectedUser.username || selectedUser.name)}
                     alt={selectedUser.username || selectedUser.name}
@@ -190,7 +208,8 @@ function ChatScreen() {
                     <div className="text-xs text-green-500">Online</div>
                   </div>
                 </div>
-                <div className="flex-1 overflow-y-auto">
+                {/* Only this div should scroll */}
+                <div className="flex-1 min-h-0 overflow-y-auto px-4">
                   <MessageList
                     messages={messages.map(msg => ({
                       ...msg,
@@ -199,7 +218,7 @@ function ChatScreen() {
                     selectedUser={selectedUser}
                   />
                 </div>
-                <div className="mt-4">
+                <div className="mt-4 px-4 pb-4">
                   <MessageInput onSend={handleSendMessage} />
                 </div>
               </div>

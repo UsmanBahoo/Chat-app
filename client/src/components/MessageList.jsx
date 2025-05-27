@@ -11,6 +11,7 @@ function MessageList({ messages, selectedUser }) {
             sender={msg.isOwn ? "You" : (selectedUser.username || selectedUser.name)}
             content={msg.content}
             isOwn={msg.isOwn}
+            timestamp={msg.timestamp}
           />
         ))
       ) : (
