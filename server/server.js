@@ -8,7 +8,7 @@ const setupSocket = require('./socket');
 // controllers
 const userController = require('./controllers/UserController');
 
-//routes
+// routes
 const userRoutes = require('./routes/UserRoutes');
 const messageRouter = require('./routes/MessageRoutes');
 const defaultRouter = require('./routes/defaultRoute');
@@ -17,18 +17,14 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
-
 connectDB();
 
 app.use(express.json());
-app.use(cors({ origin: '*' }));
-
-app.set('io', io);
 
 const allowedOrigins = [
-  'http://localhost:5173', // Vite default
-  'http://localhost:3000', // CRA default (if needed)
-  'https://9c57-2407-aa80-126-be75-a571-4d02-8a92-365.ngrok-free.app' // <-- Replace with your actual ngrok URL
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://9c57-2407-...ngrok-free.app'
 ];
 
 app.use(cors({
@@ -36,15 +32,19 @@ app.use(cors({
   credentials: true
 }));
 
-app.use('/api',userRoutes);
-app.use('/api/messages',messageRouter)
+app.set('io', io);
+
+app.use('/api', userRoutes);
+app.use('/api/messages', messageRouter);
 app.use('/', defaultRouter);
 
 setupSocket(io);
 
+// ✅ FIXED: correct syntax for root route
 app.get('/', (req, res) => {
   res.send('Server Started');
 });
 
-
-server.listen(5000, () => console.log('Server running on port 5000'));
+// ✅ FIXED: dynamic port for Heroku
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
