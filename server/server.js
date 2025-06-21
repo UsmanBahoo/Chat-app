@@ -42,8 +42,9 @@ app.use('/', defaultRouter);
 
 setupSocket(io);
 
-app.get('/', (req, res)){
-  res.send('Server Started')
-}
+app.get('/', (req, res) => {
+  res.send('Server Started');
+});
+
 
 server.listen(5000, () => console.log('Server running on port 5000'));
