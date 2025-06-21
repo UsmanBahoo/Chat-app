@@ -1,0 +1,8 @@
+{
+  "name": "heroku-root-redirect",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "npm --prefix server start",
+    "heroku-postbuild": "npm --prefix server install"
+  }
+}
